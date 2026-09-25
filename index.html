@@ -8,7 +8,7 @@
         :root {
             --primary: #6a5acd;
             --primary-dark: #5a4abc;
-            --day-color: #4ade80; /* Зеленый */
+            --day-color: #f472b6; /* Розовый для дневной смены */
             --night-color: #60a5fa; /* Синий */
             --off-color: #fbbf24; /* Оранжевый/Желтый */
             --vacation-color: #a855f7; /* Фиолетовый для отпуска */
@@ -261,21 +261,23 @@
         }
 
         /* Цвета смен */
-        .day-cell.shift-1 { background-color: var(--day-color); color: white; }
-        .day-cell.shift-2 { background-color: var(--night-color); color: white; }
-        .day-cell.shift-В { background-color: var(--off-color); color: white; }
-        .day-cell.shift-О { background-color: var(--vacation-color); color: white; }
+        .day-cell.shift-д { background-color: var(--day-color); }
+        .day-cell.shift-н { background-color: var(--night-color); }
+        .day-cell.shift-В { background-color: var(--off-color); }
+        .day-cell.shift-О { background-color: var(--vacation-color); }
 
         .day-number {
             font-size: 16px;
             line-height: 1;
             margin-bottom: 2px;
+            color: white; /* Число всегда белое */
         }
 
         .shift-label {
             font-size: 10px;
             line-height: 1;
-            opacity: 0.9;
+            color: black; /* Буквы (д, н, в, о) всегда черные */
+            font-weight: 800;
         }
 
         /* Legend */
@@ -514,7 +516,7 @@
             <input type="date" id="startDateInput">
             <button class="btn-primary" onclick="generateSchedule()">🔄 Заполнить год (12 мес.)</button>
             <div class="info-text">
-                <span>ℹ️</span> Цикл: 2 дня → 2 вых → 2 ночи → 2 вых
+                <span>ℹ️</span> Цикл: 2 дня (д) → 2 вых (В) → 2 ночи (н) → 2 вых (В)
             </div>
         </div>
 
@@ -540,8 +542,8 @@
 
             <!-- Легенда -->
             <div class="legend" style="margin-top: 20px;">
-                <div class="legend-item"><div class="legend-color" style="background: var(--day-color);"></div> Дневная (1)</div>
-                <div class="legend-item"><div class="legend-color" style="background: var(--night-color);"></div> Ночная (2)</div>
+                <div class="legend-item"><div class="legend-color" style="background: var(--day-color);"></div> Дневная (д)</div>
+                <div class="legend-item"><div class="legend-color" style="background: var(--night-color);"></div> Ночная (н)</div>
                 <div class="legend-item"><div class="legend-color" style="background: var(--off-color);"></div> Выходной (В)</div>
                 <div class="legend-item"><div class="legend-color" style="background: var(--vacation-color);"></div> Отпуск (О)</div>
             </div>
@@ -602,11 +604,11 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-title">Выберите смену</div>
         <div class="modal-options">
-            <button class="modal-btn btn-modal-day" onclick="setShift('1')">
-                <span class="icon">☀️</span> День (1)
+            <button class="modal-btn btn-modal-day" onclick="setShift('д')">
+                <span class="icon">☀️</span> День (д)
             </button>
-            <button class="modal-btn btn-modal-night" onclick="setShift('2')">
-                <span class="icon">🌙</span> Ночь (2)
+            <button class="modal-btn btn-modal-night" onclick="setShift('н')">
+                <span class="icon">🌙</span> Ночь (н)
             </button>
             <button class="modal-btn btn-modal-off" onclick="setShift('В')">
                 <span class="icon">🏠</span> Выходной
@@ -629,14 +631,14 @@
     let currentDate = new Date();
     let currentYear = currentDate.getFullYear();
     let currentMonth = currentDate.getMonth(); // 0-11
-    let scheduleData = {}; // Формат: "YYYY-M-D": "1" | "2" | "В" | "О"
+    let scheduleData = {}; // Формат: "YYYY-M-D": "д" | "н" | "В" | "О"
     let isEditMode = false;
     let currentEditingDateKey = null;
 
     const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
     
     // Базовый цикл смен (8 дней)
-    const shiftCycle = ['1', '1', 'В', 'В', '2', '2', 'В', 'В'];
+    const shiftCycle = ['д', 'д', 'В', 'В', 'н', 'н', 'В', 'В'];
 
     // Инициализация
     function init() {
@@ -716,6 +718,7 @@
 
             // Применяем цвет смены
             if (shift) {
+                // Для кириллицы в CSS классах используем прямую подстановку (работает в современных браузерах)
                 cell.classList.add(`shift-${shift}`);
             }
 
@@ -894,8 +897,8 @@
             const dateKey = `${currentYear}-${currentMonth}-${day}`;
             const shift = scheduleData[dateKey];
             
-            if (shift === '1') dayCount++;
-            else if (shift === '2') nightCount++;
+            if (shift === 'д') dayCount++;
+            else if (shift === 'н') nightCount++;
             else if (shift === 'В') offCount++;
             else if (shift === 'О') vacCount++;
         }
